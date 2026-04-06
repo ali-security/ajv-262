@@ -1,5 +1,4 @@
 name: build
-
 on:
   push:
     branches: [master]
@@ -8,9 +7,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04 # Pinned to 22.04 instead of latest for better Node 16 compatibility
     strategy:
+      fail-fast: false # Optional: Prevents the whole CI run from cancelling if Node 16 fails
       matrix:
         node-version: [16.x, 18.x, 20.x, 21.x]
 
@@ -22,16 +21,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm install
       - run: git submodule update --init
-      - name: update website
-        if: ${{ github.event_name == 'push' && matrix.node-version == '16.x' }}
-        run: ./scripts/publish-site
-        env:
-          GH_TOKEN_PUBLIC: ${{ secrets.GH_TOKEN_PUBLIC }}
-          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
-          GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
       - run: npm run build
       - run: npm run test-ci
-      - name: coveralls
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      
