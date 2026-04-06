@@ -23,9 +23,11 @@ jobs:
       - run: git submodule update --init
       - run: npm run build
       - run: npm run test-ci
+      - name: package build artifact
+        run: npm pack
       - name: upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: dist-node-${{ matrix.node-version }}
-          path: dist/
+          path: "*.tgz"
           retention-days: 1
